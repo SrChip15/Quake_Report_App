@@ -22,4 +22,10 @@
         <item name="colorAccent">@color/colorAccent</item>
     </style>
 
+    <style name="EarthquakeList">
+        <item name="android:paddingTop">@dimen/list_headroom</item>
+        <item name="android:paddingBottom">@dimen/list_legroom</item>
+        <item name="android:paddingLeft">@dimen/list_left_margin</item>
+    </style>
+
 </resources>
