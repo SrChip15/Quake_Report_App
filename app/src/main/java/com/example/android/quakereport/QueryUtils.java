@@ -71,10 +71,13 @@ public final class QueryUtils {
 				String place = properties.getString("place");
 
 				// Get the time at which the earthquake occurred
-				long time = properties.getLong("time");
+				long rawTime = properties.getLong("time");
+
+				// Get the website url for the earthquake
+				String url = properties.getString("url");
 
 				// Add data to list
-				earthquakes.add(new Earthquake(magnitude, place, time));
+				earthquakes.add(new Earthquake(magnitude, place, rawTime, url));
 			}
 
 

@@ -3,4 +3,5 @@
     <dimen name="list_headroom">16dp</dimen>
     <dimen name="list_legroom">16dp</dimen>
     <dimen name="list_left_margin">16dp</dimen>
+    <dimen name="list_right_margin">16dp</dimen>
 </resources>
