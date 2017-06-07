@@ -46,7 +46,7 @@ public class EarthquakeAdapter extends ArrayAdapter {
 
 		// // Map TextView to earthquake's date
 		TextView dateTextView = (TextView) convertView.findViewById(R.id.date_text_view);
-		dateTextView.setText(currentItem.getDate());
+		dateTextView.setText(String.valueOf(currentItem.getDate()));
 
 		return convertView;
 	}
