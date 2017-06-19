@@ -16,5 +16,10 @@
 <resources>
     <string name="app_name">Quake Report</string>
     <string name="near_the">Near the</string>
+
+    <!-- Display message when there are no earthquakes [CHAR LIMIT=NONE] -->
     <string name="empty_state_text">No earthquakes found.</string>
+
+    <!-- Error message when there is no internet connectivity [CHAR LIMIT=NONE] -->
+    <string name="no_internet">No internet connection</string>
 </resources>
