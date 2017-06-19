@@ -117,6 +117,12 @@ public class EarthquakeActivity
 
 	@Override
 	public void onLoadFinished(Loader<List<Earthquake>> loader, List<Earthquake> earthquakes) {
+		// get a reference to the progress bar
+		View progressBar = findViewById(R.id.loading_spinner);
+		// Hide progress bar
+		assert progressBar != null;
+		progressBar.setVisibility(View.GONE);
+
 		// Set empty state {@link TextView}
 		mEmptyStateView.setText(R.string.empty_state_text);
 
