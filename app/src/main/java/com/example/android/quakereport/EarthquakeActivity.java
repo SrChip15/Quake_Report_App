@@ -26,6 +26,7 @@ import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ListView;
+import android.widget.TextView;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -54,6 +55,11 @@ public class EarthquakeActivity
 	 */
 	private EarthquakeAdapter mAdapter;
 
+	/**
+	 * TextView for empty state
+	 */
+	private TextView mEmptyStateView;
+
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -70,6 +76,10 @@ public class EarthquakeActivity
 		// so the list can be populated in the user interface
 		assert earthquakeListView != null;
 		earthquakeListView.setAdapter(mAdapter);
+
+		// empty state
+		mEmptyStateView = (TextView) findViewById(R.id.empty_state_text_view);
+		earthquakeListView.setEmptyView(mEmptyStateView);
 
 		// Set an item click listener on the ListView, which sends an intent to a web browser
 		// to open a website with more information about the selected earthquake.
@@ -98,8 +108,6 @@ public class EarthquakeActivity
 		// the bundle. Pass in this activity for the LoaderCallbacks parameter (which is valid
 		// because this activity implements the LoaderCallbacks interface).
 		loaderManager.initLoader(EARTHQUAKE_LOADER_ID, null, this);
-		Log.v(LOG_TAG, "initloader()");
-
 	}
 
 	@Override
@@ -109,8 +117,8 @@ public class EarthquakeActivity
 
 	@Override
 	public void onLoadFinished(Loader<List<Earthquake>> loader, List<Earthquake> earthquakes) {
-		// Log message
-		Log.v(LOG_TAG, "onLoadFinished()");
+		// Set empty state {@link TextView}
+		mEmptyStateView.setText(R.string.empty_state_text);
 
 		// Clear the adapter of previous earthquake data
 		mAdapter.clear();
