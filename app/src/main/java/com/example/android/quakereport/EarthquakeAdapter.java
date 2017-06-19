@@ -13,16 +13,16 @@ import android.widget.TextView;
 
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 import java.util.Locale;
 
 class EarthquakeAdapter extends ArrayAdapter {
 
-	private ArrayList<Earthquake> mEarthquakesList;
+	private List<Earthquake> mEarthquakesList;
 
 
-	EarthquakeAdapter(Context context, ArrayList<Earthquake> earthquakes) {
+	EarthquakeAdapter(Context context, List<Earthquake> earthquakes) {
 		super(context, 0, earthquakes);
 
 		// Initialize list
@@ -95,7 +95,7 @@ class EarthquakeAdapter extends ArrayAdapter {
 		// Get date and time information from unix timestamp
 		Date getDateAndTime = new Date(currentQuake.getDateAndTime());
 		// Initialize {@link SimpleDateFormat) with locale date format
-		SimpleDateFormat dateFormatter = new SimpleDateFormat("MMM DD, yyyy", Locale.US);
+		SimpleDateFormat dateFormatter = new SimpleDateFormat("MMM dd yyyy", Locale.US);
 		// Format date using the formatter
 		String formattedDate = dateFormatter.format(getDateAndTime);
 		// Set the formatted date as text to display

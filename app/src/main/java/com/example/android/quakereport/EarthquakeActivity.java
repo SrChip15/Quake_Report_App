@@ -15,64 +15,118 @@
  */
 package com.example.android.quakereport;
 
+import android.app.LoaderManager;
+import android.app.LoaderManager.LoaderCallbacks;
 import android.content.Intent;
+import android.content.Loader;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ListView;
 
 import java.util.ArrayList;
+import java.util.List;
 
-public class EarthquakeActivity extends AppCompatActivity {
+@SuppressWarnings("unchecked")
+public class EarthquakeActivity
+		extends AppCompatActivity
+		implements LoaderCallbacks<List<Earthquake>> {
 
-    private ArrayList<Earthquake> mEarthquakes;
+	private static final String LOG_TAG = EarthquakeActivity.class.getName();
 
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.earthquake_activity);
+	/**
+	 * Sample JSON response for a USGS query
+	 */
+	private static final String USGS_REQUEST_URL = "https://earthquake.usgs.gov/fdsnws/event/1/" +
+			"query?format=geojson&eventtype=earthquake&orderby=time&minmag=6&limit=10";
 
-        // Get parsed earthquake details as a list
-        mEarthquakes = QueryUtils.extractEarthquakes();
+	/**
+	 * Constant value for the earthquake loader ID. We can choose any integer.
+	 * This really only comes into play if you're using multiple loaders.
+	 */
+	private static final int EARTHQUAKE_LOADER_ID = 1;
 
-        // no parse data for simple view
-        /*mEarthquakes.add(new Earthquake(5.5f, "San Francisco", "Feb 2, 2016"));
-        mEarthquakes.add(new Earthquake(3.5f, "London", "Feb 2, 2016"));
-        mEarthquakes.add(new Earthquake(4.5f, "Tokyo", "Feb 2, 2016"));
-        mEarthquakes.add(new Earthquake(2.5f, "India", "Feb 2, 2016"));
-        mEarthquakes.add(new Earthquake(6.5f, "China", "Feb 2, 2016"));
-        mEarthquakes.add(new Earthquake(9.0f, "Indonesia", "Feb 2, 2016"));
-        mEarthquakes.add(new Earthquake(4.75f, "Mexico", "Feb 2, 2016"));*/
+	/**
+	 * Adapter for the list of earthquakes
+	 */
+	private EarthquakeAdapter mAdapter;
 
-        // Find a reference to the {@link ListView} in the layout
-        final ListView earthquakeListView = (ListView) findViewById(R.id.list);
 
-        // Create a new {@link ArrayAdapter} of mEarthquakes
-        final EarthquakeAdapter adapter = new EarthquakeAdapter(EarthquakeActivity.this, mEarthquakes);
+	@Override
+	protected void onCreate(Bundle savedInstanceState) {
+		super.onCreate(savedInstanceState);
+		setContentView(R.layout.earthquake_activity);
 
-        // Set the adapter on the {@link ListView}
-        // so the list can be populated in the user interface
-        earthquakeListView.setAdapter(adapter);
+		// Find a reference to the {@link ListView} in the layout
+		ListView earthquakeListView = (ListView) findViewById(R.id.list);
 
-        // listener
-        earthquakeListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> adapterView, View view, int position, long id) {
-                // Get the earthquake object that was clicked
-                Earthquake currentEarthquake = (Earthquake) adapter.getItem(position);
+		// Create a new adapter that takes an empty list of earthquakes as input
+		mAdapter = new EarthquakeAdapter(this, new ArrayList<Earthquake>());
 
-                // Convert the String URL into a URI object (to pass into the Intent constructor)
-                Uri earthquakeWebsite = Uri.parse(currentEarthquake.getUrl());
+		// Set the adapter on the {@link ListView}
+		// so the list can be populated in the user interface
+		assert earthquakeListView != null;
+		earthquakeListView.setAdapter(mAdapter);
 
-                // Create web browser intent
-                Intent websiteIntent = new Intent(Intent.ACTION_VIEW, earthquakeWebsite);
+		// Set an item click listener on the ListView, which sends an intent to a web browser
+		// to open a website with more information about the selected earthquake.
+		earthquakeListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+			@Override
+			public void onItemClick(AdapterView<?> adapterView, View view, int position, long l) {
+				// Find the current earthquake that was clicked on
+				Earthquake currentEarthquake = (Earthquake) mAdapter.getItem(position);
 
-                // Send the intent to launch a new activity
-                startActivity(websiteIntent);
-            }
-        });
+				// Convert the String URL into a URI object (to pass into the Intent constructor)
+				assert currentEarthquake != null;
+				Uri earthquakeUri = Uri.parse(currentEarthquake.getUrl());
 
-    }
+				// Create a new intent to view the earthquake URI
+				Intent websiteIntent = new Intent(Intent.ACTION_VIEW, earthquakeUri);
+
+				// Send the intent to launch a new activity
+				startActivity(websiteIntent);
+			}
+		});
+
+		// Get a reference to the LoaderManager, in order to interact with loaders.
+		LoaderManager loaderManager = getLoaderManager();
+
+		// Initialize the loader. Pass in the int ID constant defined above and pass in null for
+		// the bundle. Pass in this activity for the LoaderCallbacks parameter (which is valid
+		// because this activity implements the LoaderCallbacks interface).
+		loaderManager.initLoader(EARTHQUAKE_LOADER_ID, null, this);
+		Log.v(LOG_TAG, "initloader()");
+
+	}
+
+	@Override
+	public Loader<List<Earthquake>> onCreateLoader(int i, Bundle bundle) {
+		return new EarthquakeLoader(this, USGS_REQUEST_URL);
+	}
+
+	@Override
+	public void onLoadFinished(Loader<List<Earthquake>> loader, List<Earthquake> earthquakes) {
+		// Log message
+		Log.v(LOG_TAG, "onLoadFinished()");
+
+		// Clear the adapter of previous earthquake data
+		mAdapter.clear();
+
+		// If there is a valid list of {@link Earthquake}s, then add them to the adapter's
+		// data set. This will trigger the ListView to update.
+		if (earthquakes != null && !earthquakes.isEmpty()) {
+			mAdapter.addAll(earthquakes);
+		}
+	}
+
+	@Override
+	public void onLoaderReset(Loader loader) {
+		// Log message
+		Log.v(LOG_TAG, "loaderReset()");
+		// Loader reset, so we can clear out our existing data.
+		mAdapter.clear();
+	}
 }
