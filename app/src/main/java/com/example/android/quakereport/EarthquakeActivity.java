@@ -20,12 +20,16 @@ import android.app.LoaderManager.LoaderCallbacks;
 import android.content.Context;
 import android.content.Intent;
 import android.content.Loader;
+import android.content.SharedPreferences;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ListView;
@@ -44,8 +48,8 @@ public class EarthquakeActivity
 	/**
 	 * Sample JSON response for a USGS query
 	 */
-	private static final String USGS_REQUEST_URL = "https://earthquake.usgs.gov/fdsnws/event/1/" +
-			"query?format=geojson&eventtype=earthquake&orderby=time&minmag=6&limit=10";
+	private static final String USGS_REQUEST_URL =
+			"https://earthquake.usgs.gov/fdsnws/event/1/query";
 
 	/**
 	 * Constant value for the earthquake loader ID. We can choose any integer.
@@ -136,8 +140,51 @@ public class EarthquakeActivity
 	}
 
 	@Override
+	public boolean onCreateOptionsMenu(Menu menu) {
+		getMenuInflater().inflate(R.menu.main, menu);
+		return true;
+	}
+
+	@Override
+	public boolean onOptionsItemSelected(MenuItem item) {
+		// Get the id of the item that was clicked
+		int id = item.getItemId();
+
+		// Check if menu option was clicked by the user
+		if (id == R.id.action_settings) {
+			Intent settingsIntent = new Intent(this, SettingsActivity.class);
+			startActivity(settingsIntent);
+			return true;
+		}
+
+		// Default behaviour
+		return super.onOptionsItemSelected(item);
+	}
+
+	@Override
 	public Loader<List<Earthquake>> onCreateLoader(int i, Bundle bundle) {
-		return new EarthquakeLoader(this, USGS_REQUEST_URL);
+		SharedPreferences sharedPrefs = PreferenceManager.getDefaultSharedPreferences(this);
+		String minMagnitude = sharedPrefs.
+				getString(
+						getString(R.string.settings_min_magnitude_key),
+						getString(R.string.settings_min_magnitude_default)
+				);
+
+		String orderBy = sharedPrefs
+				.getString(
+						getString(R.string.settings_order_by_key),
+						getString(R.string.settings_order_by_default)
+				);
+
+		Uri baseUrl = Uri.parse(USGS_REQUEST_URL);
+		Uri.Builder uriBuilder = baseUrl.buildUpon();
+
+		uriBuilder.appendQueryParameter("format", "geojson");
+		uriBuilder.appendQueryParameter("limit", "20");
+		uriBuilder.appendQueryParameter("minmag", minMagnitude);
+		uriBuilder.appendQueryParameter("orderby", orderBy);
+
+		return new EarthquakeLoader(this, uriBuilder.toString());
 	}
 
 	@Override
